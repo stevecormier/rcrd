@@ -32,48 +32,53 @@ public class rcrd extends PApplet {
 // 88          `"Ybbd8"' 88          `"8bbdP"Y8
 //
 // Stephen Cormier
-// 03-26-12
+// 04-01-12
 // 
 // 
 
 
 
 
-
-String camPara = "camera_para.dat";
-String patternPath = "patterns/";
-String songPath = "songs/";
-String coverPath = "covers/";
-
-int arWidth = 640;
-int arHeight = 480;
-
-int numMarkers = 6;
-double markerWidth = 135;
-float floatMarkerWidth = 135.0f;
 
 GSCapture cam;
-NyARMultiBoard nya;
-FullScreen fs;
 Minim minim;
+NyARMultiBoard nya;
 PFont font, font2d;
-PImage covers[] = new PImage[numMarkers];
-String patterns[] = new String[numMarkers];
+
+float markerWidth = 135.0f;
+int numMarkers = 6;
+
 AudioPlayer songs[] = new AudioPlayer[numMarkers];
-
-
-String[] songTitles = {"Trilla",
- 					   "SaturdayNightCrapoRama",
- 					   "PassingMeBy",
- 					   "NYStateOfMind",
- 					   "InTheAeroplaneOverTheSea",
- 					   "BirdsOnIce"};
+PImage covers[] = new PImage[numMarkers];
 
 public void setup(){
+    
+    double[] widths = new double[numMarkers];
+    
+    FullScreen fs;
+    
+    int arHeight = 480;
+    int arWidth = 640;
+    
+    String camPara = "camera_para.dat";
+    String patternPath = "patterns/";
+    String songPath = "songs/";
+    String coverPath = "covers/";
+    String[] patterns = new String[numMarkers];
+    String[] songTitles = {"Trilla",
+                           "SaturdayNightCrapoRama",
+                           "PassingMeBy",
+                           "NYStateOfMind",
+                           "InTheAeroplaneOverTheSea",
+                           "BirdsOnIce"};
+    
 	size(640, 480, P3D);
 	colorMode(RGB, 100);
 	font = createFont("FFScala", 32);
 	font2d = createFont("FFScala", 10);
+	
+	
+	Arrays.fill(widths, (double)markerWidth);
 	
 	cam = new GSCapture(this, arWidth, arHeight);
 	cam.start();
@@ -81,7 +86,7 @@ public void setup(){
 	minim = new Minim(this);
 
 	for(int i = 0; i <  numMarkers ; i++){
-		patterns[i] = patternPath + "0" + (i+1) + ".patt";
+	    patterns[i] = patternPath + "0" + (i+1) + ".patt";
 	}
 	
 	for(int j = 0; j <  numMarkers; j++){
@@ -91,16 +96,11 @@ public void setup(){
 	for(int k = 0; k <  numMarkers; k++){
 		songs[k] = minim.loadFile(songPath + songTitles[k] + ".aif");
 	}
-	
-	double[] widths = new double[numMarkers];
-	Arrays.fill(widths, markerWidth); 
-	
+		
 	nya = new NyARMultiBoard(this, arWidth, arHeight, camPara, patterns, widths);
 	
 	nya.gsThreshold = 70;
-	
 	nya.cfThreshold = 0.7f;
-	
 	nya.lostDelay = 7;
 	
 	//fs = new FullScreen(this);
@@ -109,7 +109,7 @@ public void setup(){
 
 public void draw(){
 	if(cam.available() !=true){
-		return;
+	    return;
 	}
 	
 	cam.read();
@@ -122,37 +122,24 @@ public void draw(){
 	
 	if(nya.detect(cam)){
 
-	    for (int i=0; i <  nya.markers.length; i++)
+        for (int i=0; i <  nya.markers.length; i++)
 	    {
-	      if (nya.markers[i].detected)
-	      {
-			nya.markers[i].beginTransform();
-
-			image(covers[i], -(floatMarkerWidth/2), -(floatMarkerWidth/2), floatMarkerWidth, floatMarkerWidth);
-	       
-	       	nya.markers[i].endTransform();
+            if (nya.markers[i].detected)
+            {
+                nya.markers[i].beginTransform();
+                image(covers[i], -(markerWidth/2), -(markerWidth/2), markerWidth, markerWidth);
+                nya.markers[i].endTransform();
 	
-			songs[i].play();
-			
-
-	      }else{
-		
-			songs[i].pause();
-		
-		  }
-			
-	    }
-
-	}else{
-		for(int j = 0; j <  numMarkers; j++){
-			songs[j].pause();
-		}
-	}
+                songs[i].play();
+                
+            }elseelse{
+        for(int j = 0; j <  nya.markers.length; j++){
+            songs[j].pause();
+        }
+    }
 	
-	hint(ENABLE_DEPTH_TEST);
-	
+    hint(ENABLE_DEPTH_TEST);
 }
-
   static public void main(String args[]) {
     PApplet.main(new String[] { "--bgcolor=#FFFFFF", "rcrd" });
   }
