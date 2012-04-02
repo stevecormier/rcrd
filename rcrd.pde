@@ -8,16 +8,17 @@
 // 88          `"Ybbd8"' 88          `"8bbdP"Y8
 //
 // Stephen Cormier
-// 03-26-12
+// 04-01-12
 // 
 // 
 import jp.nyatla.nyar4psg.*;
 import codeanticode.gsvideo.*;
 import fullscreen.*;
+import ddf.minim.*;
 
 String camPara = "camera_para.dat";
 String patternPath = "patterns/";
-String songpPath = "songs/";
+String songPath = "songs/";
 String coverPath = "covers/";
 
 int arWidth = 640;
@@ -25,11 +26,24 @@ int arHeight = 480;
 
 int numMarkers = 6;
 double markerWidth = 135;
+float floatMarkerWidth = 135.0;
 
 GSCapture cam;
 NyARMultiBoard nya;
 FullScreen fs;
+Minim minim;
 PFont font, font2d;
+PImage covers[] = new PImage[numMarkers];
+String patterns[] = new String[numMarkers];
+AudioPlayer songs[] = new AudioPlayer[numMarkers];
+
+
+String[] songTitles = {"Trilla",
+ 					   "SaturdayNightCrapoRama",
+ 					   "PassingMeBy",
+ 					   "NYStateOfMind",
+ 					   "InTheAeroplaneOverTheSea",
+ 					   "BirdsOnIce"};
 
 void setup(){
 	size(640, 480, P3D);
@@ -39,45 +53,35 @@ void setup(){
 	
 	cam = new GSCapture(this, arWidth, arHeight);
 	cam.start();
-	
-	String[] patterns = {"patt.hiro", "02.patt", "03.patt", "04.patt", "05.patt", "06.patt"};
-	
-	/*
-	String patterns[] = new String[numMarkers]; 
-	
-	for(int i = 1; i < numMarkers - 1; i++){
-		patterns[i-1] = patternPath + "0" + i + ".patt";
+
+	minim = new Minim(this);
+
+	for(int i = 0; i < numMarkers ; i++){
+		patterns[i] = patternPath + "0" + (i+1) + ".patt";
 	}
-	*/
+	
+	for(int j = 0; j < numMarkers; j++){
+		covers[j] = loadImage(coverPath + songTitles[j] + ".jpg");
+	}
+	
+	for(int k = 0; k < numMarkers; k++){
+		songs[k] = minim.loadFile(songPath + songTitles[k] + ".aif");
+	}
 	
 	double[] widths = new double[numMarkers];
 	Arrays.fill(widths, markerWidth); 
 	
 	nya = new NyARMultiBoard(this, arWidth, arHeight, camPara, patterns, widths);
 	
-	nya.gsThreshold = 120;
+	nya.gsThreshold = 70;
 	
-	nya.cfThreshold = 0.4;
+	nya.cfThreshold = 0.7;
+	
+	nya.lostDelay = 7;
+	
+	//fs = new FullScreen(this);
+	//fs.enter();
 }
-
-// draw marker corners and also position in text
-void drawMarkerPos(int[][] pos2d)
-{
-  textFont(font,10.0);
-  stroke(100,0,0);
-  fill(100,0,0);
-  
-  // draw ellipses at outside corners of marker
-  for(int i=0;i<4;i++){
-    ellipse(pos2d[i][0], pos2d[i][1],5,5);
-  }
-  
-  fill(0,0,0);
-  for(int i=0;i<4;i++){
-    text("("+pos2d[i][0]+","+pos2d[i][1]+")",pos2d[i][0],pos2d[i][1]);
-  }
-}
-
 
 void draw(){
 	if(cam.available() !=true){
@@ -93,23 +97,35 @@ void draw(){
 	hint(ENABLE_DEPTH_TEST);
 	
 	if(nya.detect(cam)){
-		hint(DISABLE_DEPTH_TEST);
-		
-		for(int i = 0; i < nya.markers.length; i++){
-			if(nya.markers[i].detected){
-				drawMarkerPos(nya.markers[i].pos2d);
-			}
-		}
 
+	    for (int i=0; i < nya.markers.length; i++)
+	    {
+	      if (nya.markers[i].detected)
+	      {
+			nya.markers[i].beginTransform();
+
+			image(covers[i], -(floatMarkerWidth/2), -(floatMarkerWidth/2), floatMarkerWidth, floatMarkerWidth);
+	       
+	       	nya.markers[i].endTransform();
+	
+			songs[i].play();
+			
+
+	      }else{
+		
+			songs[i].pause();
+		
+		  }
+			
+	    }
+
+	}else{
+		for(int j = 0; j < numMarkers; j++){
+			songs[j].pause();
+		}
 	}
 	
 	hint(ENABLE_DEPTH_TEST);
 	
-	hint(DISABLE_DEPTH_TEST);
-  	textFont(font2d,10.0);
-  	textMode(SCREEN);
-  	fill(100,100,0);
-  	text("frame rate = " + frameRate, 10, 10);
-  	textMode(MODEL);
-  	hint(ENABLE_DEPTH_TEST);
 }
+
