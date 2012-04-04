@@ -108,6 +108,12 @@ public void setup(){
 }
 
 public void draw(){
+    
+    float prevAngles[] = new float[numMarkers];
+    Arrays.fill(prevAngles, 0);
+    int angleVal;
+    int prevVal;
+    int diff;
 	if(cam.available() !=true){
 	    return;
 	}
@@ -129,16 +135,27 @@ public void draw(){
                 nya.markers[i].beginTransform();
                 image(covers[i], -(markerWidth/2), -(markerWidth/2), markerWidth, markerWidth);
                 nya.markers[i].endTransform();
-	
                 songs[i].play();
                 
-            }elseelse{
+                angleVal = (int)(nya.markers[i].angle.z * 10);
+                prevVal = (int)(prevAngles[i] * 10);
+                
+                //if(prevAngles[i] != nya.markers[i].angle.z){
+                    //diff = angleVal - prevVal;
+                    songs[i].skip(25 * (int)(nya.markers[i].angle.z * 10));
+                //}
+                
+                prevAngles[i] = nya.markers[i].angle.z;
+            
+            }else{
+                songs[i].pause();
+            }
+        }
+    }else{
         for(int j = 0; j <  nya.markers.length; j++){
             songs[j].pause();
         }
     }
-	
-    hint(ENABLE_DEPTH_TEST);
 }
   static public void main(String args[]) {
     PApplet.main(new String[] { "--bgcolor=#FFFFFF", "rcrd" });

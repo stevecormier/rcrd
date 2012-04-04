@@ -84,6 +84,7 @@ void setup(){
 }
 
 void draw(){
+
 	if(cam.available() !=true){
 	    return;
 	}
@@ -105,9 +106,10 @@ void draw(){
                 nya.markers[i].beginTransform();
                 image(covers[i], -(markerWidth/2), -(markerWidth/2), markerWidth, markerWidth);
                 nya.markers[i].endTransform();
-	
                 songs[i].play();
                 
+                songs[i].skip(25 * (int)(nya.markers[i].angle.z * 10));
+       
             }else{
                 songs[i].pause();
             }
@@ -117,6 +119,4 @@ void draw(){
             songs[j].pause();
         }
     }
-	
-    hint(ENABLE_DEPTH_TEST);
 }
