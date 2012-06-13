@@ -45,7 +45,7 @@ Minim minim;
 NyARMultiBoard nya;
 PFont font, font2d;
 
-float markerWidth = 135.0f;
+float markerWidth = 40.0f;
 int numMarkers = 6;
 
 AudioPlayer songs[] = new AudioPlayer[numMarkers];
@@ -133,8 +133,8 @@ public void draw(){
                 noFill();
                 strokeWeight(1.5f);
                 stroke(0xff66FF33);
-                ellipse(0, 0, 250, 250);
-                line(0, -(markerWidth/2), 0, 0, -125, 0);
+                ellipse(0, 0, markerWidth*2, markerWidth*2);
+                line(0, -(markerWidth/2), 0, 0, -markerWidth, 0);
                 nya.markers[i].endTransform();
                 
                 songs[i].play();
